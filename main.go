@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	log "github.com/sirupsen/logrus"
+	"github.com/urfave/cli/v2"
 	"os"
 	"path/filepath"
 	"strings"
@@ -19,8 +20,30 @@ type FindInfo struct {
 	lines    []LineInfo
 }
 
-func GetFileList(path string) ([]string, error) {
-	return filepath.Glob(path)
+func GetFileList(targetPattern string) ([]string, error) {
+	var fileList []string
+
+	err := filepath.Walk(".",
+		func(filePath string, info os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+			//fmt.Println(targetPattern, info.Size())
+			if !info.IsDir() {
+				matched, _ := filepath.Match(targetPattern, info.Name())
+				if matched {
+					fileList = append(fileList, filePath)
+				}
+			}
+			return nil
+		})
+	if err != nil {
+		log.Println(err)
+		return []string{}, err
+	}
+
+	return fileList, nil
+	//return filepath.Glob(path)
 }
 
 func FindWordInPathFiles(word, path string) []FindInfo {
@@ -86,22 +109,37 @@ func PrintAllFiles(word string, files []string) []FindInfo {
 }
 
 func main() {
-	if len(os.Args) < 3 {
-		log.Errorln("Need more than 2 arguments. i.e,) go-find word filepath")
-		return
+	app := &cli.App{
+		Name:  "greet",
+		Usage: "fight the loneliness!",
+		Action: func(c *cli.Context) error {
+			fmt.Println("Hello friend!")
+
+			return nil
+		},
 	}
 
-	word := os.Args[1]
-	files := os.Args[2:]
-	log.Infoln("You are looking for:", word)
-	result := PrintAllFiles(word, files)
-
-	for _, info := range result {
-		fmt.Println(info.filename)
-		fmt.Println("------------------")
-		for _, lineInfo := range info.lines {
-			fmt.Println("\t", lineInfo.lineNo, "\t", lineInfo.line)
-		}
-		fmt.Println("------------------")
+	err := app.Run(os.Args)
+	if err != nil {
+		log.Fatal(err)
 	}
+
+	//if len(os.Args) < 3 {
+	//	log.Errorln("Need more than 2 arguments. i.e,) go-find word filepath")
+	//	return
+	//}
+	//
+	//word := os.Args[1]
+	//files := os.Args[2:]
+	//log.Infoln("You are looking for:", word)
+	//result := PrintAllFiles(word, files)
+	//
+	//for _, info := range result {
+	//	fmt.Println(info.filename)
+	//	fmt.Println("------------------")
+	//	for _, lineInfo := range info.lines {
+	//		fmt.Println("\t", lineInfo.lineNo, "\t", lineInfo.line)
+	//	}
+	//	fmt.Println("------------------")
+	//}
 }
