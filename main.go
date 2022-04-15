@@ -2,9 +2,8 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	log "github.com/sirupsen/logrus"
-	"github.com/urfave/cli/v2"
+	worker_pool "go-find/pkg/worker-pool"
 	"os"
 	"path/filepath"
 	"strings"
@@ -109,20 +108,22 @@ func PrintAllFiles(word string, files []string) []FindInfo {
 }
 
 func main() {
-	app := &cli.App{
-		Name:  "greet",
-		Usage: "fight the loneliness!",
-		Action: func(c *cli.Context) error {
-			fmt.Println("Hello friend!")
+	worker_pool.TestWorkerPool()
 
-			return nil
-		},
-	}
-
-	err := app.Run(os.Args)
-	if err != nil {
-		log.Fatal(err)
-	}
+	//app := &cli.App{
+	//	Name:  "greet",
+	//	Usage: "fight the loneliness!",
+	//	Action: func(c *cli.Context) error {
+	//		fmt.Println("Hello friend!")
+	//
+	//		return nil
+	//	},
+	//}
+	//
+	//err := app.Run(os.Args)
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
 
 	//if len(os.Args) < 3 {
 	//	log.Errorln("Need more than 2 arguments. i.e,) go-find word filepath")
